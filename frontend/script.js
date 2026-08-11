@@ -10,7 +10,7 @@ const API_URL = `${API_BASE_URL}/api/applications`;
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
-  message.textContent = 'Saving application...';
+  message.textContent = 'Saving registration...';
   message.classList.remove('error', 'success');
 
   const payload = Object.fromEntries(new FormData(form).entries());
@@ -25,10 +25,10 @@ form.addEventListener('submit', async (event) => {
 
     const result = await response.json();
     if (!response.ok) {
-      throw new Error(result.error || 'Unable to save application.');
+      throw new Error(result.error || 'Unable to save registration.');
     }
 
-    message.textContent = `Application saved. Reference: ${result.referenceNumber}`;
+    message.textContent = `Registration draft saved. Reference: ${result.referenceNumber}`;
     message.classList.add('success');
     form.reset();
   } catch (error) {

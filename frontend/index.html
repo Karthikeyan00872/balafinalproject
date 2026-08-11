@@ -3,101 +3,100 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tamil Nadu Old Age Pension Application Guide</title>
+  <title>TNUWWB Digital Welfare Platform</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header class="hero">
     <nav class="nav">
-      <div class="brand">TN OAP Assist</div>
-      <a href="#apply" class="nav-link">Start Application</a>
+      <div class="brand">TNUWWB Connect</div>
+      <a href="#apply" class="nav-link">Start Registration</a>
     </nav>
     <section class="hero-content">
-      <p class="eyebrow">Tamil Nadu e-Sevai Support</p>
-      <h1>Old Age Pension Online Application Helper</h1>
+      <p class="eyebrow">Unorganised Workers Welfare</p>
+      <h1>Digital registration, verification, claims, and smart-card platform</h1>
       <p>
-        Follow the official TN e-Sevai process, prepare every required document,
-        and submit your Indira Gandhi National Old Age Pension Scheme details for tracking.
+        A final-year engineering MVP modeled after the Tamil Nadu Unorganised Workers Welfare Board portal,
+        supporting OTP login, document uploads, officer verification, scheme claims, and QR smart cards.
       </p>
-      <a href="#steps" class="primary-button">View Procedure</a>
+      <a href="#workflow" class="primary-button">Explore Workflow</a>
     </section>
   </header>
 
   <main>
-    <section id="steps" class="section">
+    <section id="workflow" class="section">
       <div class="section-heading">
-        <p class="eyebrow">Procedure</p>
-        <h2>Step-by-step online application flow</h2>
+        <p class="eyebrow">Registration Flow</p>
+        <h2>Worker onboarding from OTP to smart card</h2>
       </div>
       <div class="cards">
         <article class="card">
           <span class="step-number">1</span>
-          <h3>Access Portal & Register CAN</h3>
-          <p>Visit tnesevai.tn.gov.in or tnedistrict.tn.gov.in, use Citizen Login, then search or register your CAN.</p>
+          <h3>Mobile OTP Login</h3>
+          <p>Workers verify their 10-digit mobile number before creating or resuming an application.</p>
         </article>
         <article class="card">
           <span class="step-number">2</span>
-          <h3>Fill Application</h3>
-          <p>Select REV-201, add personal, family, income, destitute, and Aadhaar-linked bank details.</p>
+          <h3>Board & Occupation</h3>
+          <p>Select a welfare board such as Construction, Tailoring, or Auto/Taxi Driver and the matching occupation.</p>
         </article>
         <article class="card">
           <span class="step-number">3</span>
-          <h3>Upload Documents</h3>
-          <p>Upload Aadhaar, smart ration card, age proof, income certificate, affidavit, bank passbook, and photo.</p>
+          <h3>Profile & Documents</h3>
+          <p>Capture personal, address, bank, nominee, and family details with Aadhaar, ration card, passbook, photo, and work certificate uploads.</p>
         </article>
         <article class="card">
           <span class="step-number">4</span>
-          <h3>Submit & Track</h3>
-          <p>Submit, save the acknowledgement reference number, and wait for VAO, RI, and Tahsildar verification.</p>
+          <h3>Verification & Card</h3>
+          <p>Applications move through Pending Verification, Field Verification, Approved or Rejected, and Smart Card Issued statuses.</p>
         </article>
       </div>
     </section>
 
     <section class="section checklist-section">
       <div>
-        <p class="eyebrow">Documents</p>
-        <h2>Required upload checklist</h2>
+        <p class="eyebrow">Claims</p>
+        <h2>Scheme claim services</h2>
       </div>
       <ul class="checklist">
-        <li>Aadhaar Card & Smart Ration Card</li>
-        <li>Age Proof: Voter ID, Birth Certificate, or SSLC card</li>
-        <li>Income Certificate from Tahsildar / Revenue Department</li>
-        <li>Self-Declaration / Destitute Affidavit</li>
-        <li>Aadhaar-linked Bank Passbook Copy</li>
-        <li>Passport-size Photograph</li>
+        <li>Education allowance claims with bonafide certificates</li>
+        <li>Marriage grant claims with invitation and identity documents</li>
+        <li>Maternity benefit claims with medical certificates</li>
+        <li>Pension and accident relief claims with supporting records</li>
+        <li>Tracking IDs, officer remarks, and real-time status updates</li>
       </ul>
     </section>
 
     <section id="apply" class="section form-section">
       <div class="form-copy">
-        <p class="eyebrow">Application Record</p>
-        <h2>Save applicant details</h2>
+        <p class="eyebrow">MVP Draft</p>
+        <h2>Save a worker registration draft</h2>
         <p>
-          This form stores an application record in MongoDB through the Flask backend.
-          Use the official portal for final government submission.
+          This starter form stores a local application record through the Flask backend.
+          The full blueprint in the README explains the recommended production architecture, SQL schema, and API design.
         </p>
       </div>
       <form id="applicationForm" class="application-form">
         <div class="field-grid">
-          <label>Applicant Name<input name="applicantName" required /></label>
+          <label>Worker Name<input name="applicantName" required /></label>
           <label>Mobile Number<input name="mobile" pattern="[0-9]{10}" required /></label>
-          <label>Age<input name="age" type="number" min="60" required /></label>
-          <label>CAN Number<input name="canNumber" placeholder="Optional" /></label>
+          <label>Age<input name="age" type="number" min="18" max="60" required /></label>
+          <label>Welfare Board<input name="canNumber" placeholder="Construction / Tailoring / Auto" /></label>
           <label>District<input name="district" required /></label>
           <label>Taluk<input name="taluk" required /></label>
           <label>Bank Name<input name="bankName" required /></label>
           <label>IFSC Code<input name="ifsc" required /></label>
         </div>
         <label>Address<textarea name="address" rows="4" required></textarea></label>
-        <label class="checkbox"><input type="checkbox" name="documentsReady" required /> I have prepared the required documents.</label>
-        <button type="submit" class="primary-button">Save Application</button>
+        <label class="checkbox"><input type="checkbox" name="documentsReady" required /> I have prepared Aadhaar, ration card, bank passbook, photo, and work certificate documents.</label>
+        <button type="submit" class="primary-button">Save Registration</button>
         <p id="formMessage" class="form-message" role="status"></p>
       </form>
     </section>
   </main>
 
   <footer>
-    <p>Informational helper only. Final submission must be completed through the official Tamil Nadu e-Sevai portal.</p>
+    <p>Academic MVP blueprint only. Production use requires official policy, security, and government integration review.</p>
   </footer>
 
   <script src="script.js"></script>
