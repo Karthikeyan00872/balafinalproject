@@ -5,7 +5,7 @@ from pathlib import Path
 from threading import Lock
 from uuid import uuid4
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError, ServerSelectionTimeoutError
@@ -13,8 +13,9 @@ from pymongo.errors import PyMongoError, ServerSelectionTimeoutError
 MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017/')
 DATABASE_NAME = os.getenv('DATABASE_NAME', 'tn_oap_portal')
 STORAGE_FILE = Path(os.getenv('STORAGE_FILE', Path(__file__).with_name('applications.json')))
+FRONTEND_DIR = Path(__file__).resolve().parent.parent / 'frontend'
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder=None)
 CORS(app)
 
 client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=1000)
@@ -93,14 +94,12 @@ def find_application(reference_number):
 
 @app.get('/')
 def root():
-    return jsonify({
-        'message': 'TN OAP API is running.',
-        'endpoints': [
-            '/api/health',
-            '/api/applications',
-            '/api/applications/<referenceNumber>'
-        ]
-    })
+    return send_from_directory(FRONTEND_DIR, 'index.html')
+
+
+@app.get('/<path:filename>')
+def frontend_assets(filename):
+    return send_from_directory(FRONTEND_DIR, filename)
 
 
 @app.get('/api/health')
