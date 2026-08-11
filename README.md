@@ -28,11 +28,11 @@ export MONGO_URI="mongodb://localhost:27017/"
 python app.py
 ```
 
-The backend runs at `http://localhost:5000`.
+The backend serves both the API and frontend at `http://localhost:5000`. If you are opening it from another device on the same network, use the server machine's IP address, for example `http://192.168.43.31:5000`.
 
 ### Frontend
 
-Open `frontend/index.html` in a browser, or serve it with:
+The simplest option is to open the frontend served by Flask at `http://localhost:5000`. You can also open `frontend/index.html` in a browser, or serve it separately with:
 
 ```bash
 cd frontend
