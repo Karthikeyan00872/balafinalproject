@@ -28,6 +28,18 @@ REQUIRED_FIELDS = [
 ]
 
 
+@app.get('/')
+def root():
+    return jsonify({
+        'message': 'TN OAP API is running.',
+        'endpoints': [
+            '/api/health',
+            '/api/applications',
+            '/api/applications/<referenceNumber>'
+        ]
+    })
+
+
 @app.get('/api/health')
 def health_check():
     return jsonify({'status': 'ok', 'database': DATABASE_NAME})
@@ -85,4 +97,4 @@ def get_application(reference_number):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=False, use_reloader=False)
