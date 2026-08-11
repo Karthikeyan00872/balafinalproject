@@ -11,7 +11,7 @@ from pymongo import MongoClient
 from pymongo.errors import PyMongoError, ServerSelectionTimeoutError
 
 MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017/')
-DATABASE_NAME = os.getenv('DATABASE_NAME', 'tn_oap_portal')
+DATABASE_NAME = os.getenv('DATABASE_NAME', 'tnuwwb_portal')
 STORAGE_FILE = Path(os.getenv('STORAGE_FILE', Path(__file__).with_name('applications.json')))
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / 'frontend'
 
@@ -120,23 +120,23 @@ def create_application():
     except (TypeError, ValueError):
         return jsonify({'error': 'Age must be a valid number.'}), 400
 
-    if age < 60:
-        return jsonify({'error': 'Applicant must be at least 60 years old.'}), 400
+    if age < 18 or age > 60:
+        return jsonify({'error': 'Worker must be between 18 and 60 years old.'}), 400
 
-    reference_number = f'TNOAP-{datetime.now(timezone.utc).strftime("%Y%m%d")}-{uuid4().hex[:8].upper()}'
+    reference_number = f'TNUWWB-{datetime.now(timezone.utc).strftime("%Y%m%d")}-{uuid4().hex[:8].upper()}'
     application = {
         'referenceNumber': reference_number,
         'applicantName': data['applicantName'].strip(),
         'mobile': data['mobile'].strip(),
         'age': age,
-        'canNumber': data.get('canNumber', '').strip(),
+        'welfareBoard': data.get('canNumber', '').strip(),
         'district': data['district'].strip(),
         'taluk': data['taluk'].strip(),
         'bankName': data['bankName'].strip(),
         'ifsc': data['ifsc'].strip().upper(),
         'address': data['address'].strip(),
         'documentsReady': bool(data.get('documentsReady')),
-        'status': 'Draft saved - submit on official TN e-Sevai portal',
+        'status': 'Draft saved - upload documents and submit for welfare board verification',
         'createdAt': datetime.now(timezone.utc),
     }
 
