@@ -1,20 +1,26 @@
+import json
 import os
 from datetime import datetime, timezone
+from pathlib import Path
+from threading import Lock
 from uuid import uuid4
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from pymongo import MongoClient
+from pymongo.errors import PyMongoError, ServerSelectionTimeoutError
 
 MONGO_URI = os.getenv('MONGO_URI', 'mongodb://localhost:27017/')
 DATABASE_NAME = os.getenv('DATABASE_NAME', 'tn_oap_portal')
+STORAGE_FILE = Path(os.getenv('STORAGE_FILE', Path(__file__).with_name('applications.json')))
 
 app = Flask(__name__)
 CORS(app)
 
-client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=3000)
+client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=1000)
 db = client[DATABASE_NAME]
 applications = db.applications
+file_lock = Lock()
 
 REQUIRED_FIELDS = [
     'applicantName',
@@ -26,6 +32,63 @@ REQUIRED_FIELDS = [
     'ifsc',
     'address',
 ]
+
+
+def mongo_available():
+    try:
+        client.admin.command('ping')
+        return True
+    except ServerSelectionTimeoutError:
+        return False
+    except PyMongoError:
+        return False
+
+
+def serialize_application(application):
+    serialized = dict(application)
+    serialized.pop('_id', None)
+    created_at = serialized.get('createdAt')
+    if isinstance(created_at, datetime):
+        serialized['createdAt'] = created_at.isoformat()
+    return serialized
+
+
+def read_file_records():
+    if not STORAGE_FILE.exists():
+        return []
+    with STORAGE_FILE.open('r', encoding='utf-8') as file:
+        return json.load(file)
+
+
+def write_file_records(records):
+    STORAGE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with STORAGE_FILE.open('w', encoding='utf-8') as file:
+        json.dump(records, file, indent=2)
+
+
+def save_application(application):
+    if mongo_available():
+        applications.insert_one(application)
+        return 'mongodb'
+
+    record = serialize_application(application)
+    with file_lock:
+        records = read_file_records()
+        records.append(record)
+        write_file_records(records)
+    return 'file'
+
+
+def find_application(reference_number):
+    if mongo_available():
+        application = applications.find_one({'referenceNumber': reference_number}, {'_id': 0})
+        return serialize_application(application) if application else None
+
+    with file_lock:
+        return next(
+            (record for record in read_file_records() if record.get('referenceNumber') == reference_number),
+            None,
+        )
 
 
 @app.get('/')
@@ -42,7 +105,8 @@ def root():
 
 @app.get('/api/health')
 def health_check():
-    return jsonify({'status': 'ok', 'database': DATABASE_NAME})
+    storage = 'mongodb' if mongo_available() else 'file'
+    return jsonify({'status': 'ok', 'database': DATABASE_NAME, 'storage': storage})
 
 
 @app.post('/api/applications')
@@ -76,21 +140,27 @@ def create_application():
         'status': 'Draft saved - submit on official TN e-Sevai portal',
         'createdAt': datetime.now(timezone.utc),
     }
+
     try:
-        applications.insert_one(application)
-    except Exception as exc:
-        return jsonify({'error': 'Database unavailable. Please check MongoDB connection.', 'details': str(exc)}), 503
+        storage = save_application(application)
+    except (OSError, PyMongoError) as exc:
+        return jsonify({'error': 'Unable to save application.', 'details': str(exc)}), 503
 
     return jsonify({
         'message': 'Application saved successfully.',
         'referenceNumber': reference_number,
         'status': application['status'],
+        'storage': storage,
     }), 201
 
 
 @app.get('/api/applications/<reference_number>')
 def get_application(reference_number):
-    application = applications.find_one({'referenceNumber': reference_number}, {'_id': 0})
+    try:
+        application = find_application(reference_number)
+    except (OSError, PyMongoError) as exc:
+        return jsonify({'error': 'Unable to retrieve application.', 'details': str(exc)}), 503
+
     if not application:
         return jsonify({'error': 'Application not found.'}), 404
     return jsonify(application)

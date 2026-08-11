@@ -38,3 +38,5 @@ input, textarea { width: 100%; border: 1px solid #d0d5dd; border-radius: 12px; p
 .checkbox input { width: auto; }
 footer { text-align: center; padding: 26px 8%; background: #161b22; }
 @media (max-width: 800px) { .checklist-section, .form-section { grid-template-columns: 1fr; } .field-grid { grid-template-columns: 1fr; } .hero-content { padding-top: 70px; } }
+.form-message.success { color: #067647; font-weight: 700; }
+.form-message.error { color: #b42318; font-weight: 700; }
